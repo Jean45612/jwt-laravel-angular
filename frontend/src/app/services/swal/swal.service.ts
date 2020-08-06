@@ -16,7 +16,8 @@ export class SwalService {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Confirmar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      heightAuto:false //ESTO LO PONGO PORQUE SINO EL SWAL HACE MAS CHICO MI MENU Y SE MALOGRA
     }).then((result) => {
       if (result.value) {
         return true;
@@ -30,7 +31,8 @@ export class SwalService {
     Swal.fire({
       title: msj,
       icon: icon,
-      timer: timer
+      timer: timer,
+      heightAuto:false //ESTO LO PONGO PORQUE SINO EL SWAL HACE MAS CHICO MI MENU Y SE MALOGRA
     });
   }
 }

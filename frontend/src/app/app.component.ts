@@ -9,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'frontend';
   logged = false;
+
   constructor(
     private Auth: AuthService) {
   }
