@@ -1,0 +1,38 @@
+<div class="mt-4 col-8 offset-2">
+  <div class="card">
+    <div class="card-header">Registrate aquí</div>
+    <div class="card-body">
+      <form (ngSubmit)="registrar()" class="px-4" ngNativeValidate autocomplete="off">
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Email <span class="text-danger">*</span></label>
+          <div class="col-sm-9">
+            <input type="email" name="email" class="form-control" placeholder="user@example.com"
+              [(ngModel)]="form.email">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Contraseña <span class="text-danger">*</span></label>
+          <div class="col-sm-9">
+            <input type="password" name="password" class="form-control" [(ngModel)]="form.password">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Confirmar contraseña <span class="text-danger">*</span></label>
+          <div class="col-sm-9">
+            <input type="password" name="password_confirmation" class="form-control"
+              [(ngModel)]="form.password_confirmation">
+          </div>
+        </div>
+
+        <app-error [error]="error"></app-error>
+        <div class="form-group row">
+          <div class="col-sm-9 offset-3">
+            <button type="submit" class="btn btn-primary">Registrarse</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

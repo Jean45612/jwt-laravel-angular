@@ -1,0 +1,16 @@
+<nav class="navbar navbar-expand navbar-dark bg-primary">
+  <a class="navbar-brand" href="#">Titulo Sistema</a>
+  <div class="navbar-collapse" *ngIf="logged">
+    <ul class="navbar-nav ml-auto">
+      <li class="dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+          {{username()}}
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a class="dropdown-item" (click)="perfil()" href="">Mi perfil</a>
+          <a class="dropdown-item" (click)="logout($event)" href="">Cerrar sesión</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
