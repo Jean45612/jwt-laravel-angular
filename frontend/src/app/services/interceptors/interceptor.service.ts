@@ -1,4 +1,4 @@
-import { AuthService } from './auth.service';
+import { AuthService } from './../auth/auth.service';
 import { TokenService } from './../token/token.service';
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders, HttpErrorResponse } from '@angular/common/http';

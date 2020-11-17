@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegistrarUsuario extends FormRequest
+class Usuario extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,9 @@ class RegistrarUsuario extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:users',
-            'password' => 'required | confirmed'
+            'email' => 'required|email|unique:users,email,' . $this->id . ',id', //CON ESTO IGNORO AL REGISTRO
+            'password' => 'required_without:id| confirmed', //REQUIRED WITHOUT ES PARA PONER LA CONTRASEÑA REQUERIDA CUANDO NO ESTA EDITANDO
+            'rol_id' => 'required'
         ];
     }
 
@@ -35,8 +36,9 @@ class RegistrarUsuario extends FormRequest
             'email.unique' => 'El usuario ya ha sido tomado.',
             'email.email' => 'El usuario debe ser un email.',
             'email.required' => 'El usuario es requerido.',
-            'password.required' => 'La contraseña es requerida.',
-            'password.confirmed' => 'El campo de confirmación de contraseña no coincide.'
+            'password.required_without' => 'La contraseña es requerida.',
+            'password.confirmed' => 'El campo de confirmación de contraseña no coincide.',
+            'rol_id.required' => 'El rol es requerido.',
         ];
     }
 }

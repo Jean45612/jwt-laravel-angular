@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Login;
-use App\Http\Requests\RegistrarUsuario;
+use App\Http\Requests\Usuario;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -23,6 +24,9 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)
             ->where('estado', '1')
+            ->whereHas('rol', function ($q) {
+                $q->where('estado', '1');
+            })
             ->first();
 
         if (!$user) {
@@ -63,7 +67,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Cerro sesión exitosamente.']);
     }
 
-    public function register(RegistrarUsuario $request)
+    public function register(Usuario $request)
     {
         $user = User::create($request->all());
 
@@ -76,7 +80,11 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken($this->guard()->refresh());
+        $refresh_token = $this->guard()->refresh();
+
+        Auth::user(JWTAuth::setToken($refresh_token)->toUser()); ///ESTO LO HAGO PORQUE DESPUES DE REFRESCAR EL TOKEN, EL USUARIO SE VUELVE NULO
+
+        return $this->respondWithToken($refresh_token);
     }
 
     /**

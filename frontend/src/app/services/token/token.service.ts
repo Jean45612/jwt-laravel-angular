@@ -9,7 +9,8 @@ export class TokenService {
 
   private iss = {
     login: this.apiUrl + 'login',
-    signup: this.apiUrl + 'register'
+    signup: this.apiUrl + 'register',
+    refresh: this.apiUrl + 'refresh'
   };
 
   constructor() { };

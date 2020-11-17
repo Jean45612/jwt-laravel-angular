@@ -14,29 +14,30 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $paginate = $request->input('paginate');
-
-        $offset = $request->input('offset') * $paginate;
-
+        $perPage = $request->input('perPage');
+        $page = $request->input('page') - 1;
+        $sortBy = $request->input('sortBy');
+        $orderBy = $request->input('orderBy');
         $searchValue = $request->input('search');
 
         $data = User::where('estado', '1')
             ->with('rol')
+            ->whereHas('rol', function ($q) {
+                $q->where('estado', '1');
+            })
             ->where(function ($query) use ($searchValue) {
                 $query->where("id", "LIKE", "%$searchValue%")
                     ->orWhere('email', "LIKE", "%$searchValue%");
             });
 
-        if (!$paginate) {
-            $data = $data->count();
-        } else {
-            $data = $data
-                ->skip($offset)
-                ->take($paginate)
-                ->orderBy('id', 'DESC')->get();
-        }
+        $total = $data->count();
 
-        return response()->json($data, 200);
+        $data = $data
+            ->skip($page * $perPage)
+            ->take($perPage)
+            ->orderBy($sortBy, $orderBy)->get();
+
+        return response()->json(['rows' => $data, 'totalRecords' => $total], 200);
     }
 
     /**
@@ -57,7 +58,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**

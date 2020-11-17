@@ -1,5 +1,5 @@
+import { InterceptorService } from './services/interceptors/interceptor.service';
 import { LibreriasModule } from './modules/librerias/librerias.module';
-import { InterceptorService } from './services/auth/interceptor.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
