@@ -1,3 +1,4 @@
+import { SwalService } from './../swal/swal.service';
 import { AuthService } from './../auth/auth.service';
 import { TokenService } from './../token/token.service';
 import { Injectable } from '@angular/core';
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
 })
 export class InterceptorService implements HttpInterceptor {
 
-  constructor(private Token: TokenService, private router: Router, private Auth: AuthService) { }
+  constructor(private Token: TokenService, private router: Router, private Auth: AuthService, private swal: SwalService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let request = req;
@@ -36,8 +37,13 @@ export class InterceptorService implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.log('error', error);
+        if (error.status === 401 && error.error.message === "Token has expired") {
+          console.log('debo refrescar');
+        }
 
-        if (error.status === 401) {
+        if (error.error.message === "Token has expired and can no longer be refreshed") {
+          this.swal.alerta('La sesión ha expirado', 'warning');
           this.Token.remove();
           this.Auth.changeAuthStatus(false);
           this.router.navigate(['login']);
