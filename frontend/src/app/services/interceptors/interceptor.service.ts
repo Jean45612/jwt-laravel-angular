@@ -1,10 +1,11 @@
+import { environment } from 'src/environments/environment';
 import { SwalService } from './../swal/swal.service';
 import { AuthService } from './../auth/auth.service';
 import { TokenService } from './../token/token.service';
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders, HttpErrorResponse, HttpClient } from '@angular/common/http';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -12,34 +13,20 @@ import { Router } from '@angular/router';
 })
 export class InterceptorService implements HttpInterceptor {
 
-  constructor(private Token: TokenService, private router: Router, private Auth: AuthService, private swal: SwalService) { }
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
+  constructor(private Token: TokenService, private router: Router, private Auth: AuthService, private swal: SwalService, private http: HttpClient) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let request = req;
-
-    let headers = new HttpHeaders();
-
-    headers = headers.append('Content-Type', 'application/json; charset=utf-8');
-
-    if (request.method === 'POST' && request.body.toString() === "[object FormData]") { //SI ES QUE VOY A SUBIR IMAGENES ELIMINO LO DEL APLICATION JSON
-      headers = headers.delete('Content-Type', 'application/json; charset=utf-8');
-    }
-
     const token = this.Token.getToken();
 
-    if (token) {
-      headers = headers.append('Authorization', 'Bearer ' + token);
-    }
-
-    request = req.clone({
-      headers
-    });
+    const request = this.getHeaders(req, token);
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.log('error', error);
         if (error.status === 401 && error.error.message === "Token has expired") {
-          console.log('debo refrescar');
+          return this.refreshToken(request, next);
         }
 
         if (error.error.message === "Token has expired and can no longer be refreshed") {
@@ -53,6 +40,46 @@ export class InterceptorService implements HttpInterceptor {
 
       })
     );
+  }
+
+  private refreshToken(request: HttpRequest<any>, next: HttpHandler) {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
+
+      return this.http.post(environment.apiUrl + 'refresh', {}).pipe(switchMap((data: any) => {
+        this.Token.setToken(data.access_token, data.user);
+        this.isRefreshing = false;
+        this.refreshTokenSubject.next(data.access_token);
+        return next.handle(this.getHeaders(request, data.access_token));
+      }));
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token != null),
+        take(1),
+        switchMap(jwt => {
+          return next.handle(this.getHeaders(request, jwt));
+        }));
+    }
+  }
+
+  private getHeaders(request: HttpRequest<any>, token: string) {
+
+    let headers = new HttpHeaders();
+
+    headers = headers.append('Content-Type', 'application/json; charset=utf-8');
+
+    if (request.method === 'POST' && request.body.toString() === "[object FormData]") { //SI ES QUE VOY A SUBIR IMAGENES ELIMINO LO DEL APLICATION JSON
+      headers = headers.delete('Content-Type', 'application/json; charset=utf-8');
+    }
+
+    if (token) {
+      headers = headers.append('Authorization', 'Bearer ' + token);
+    }
+
+    return request = request.clone({
+      headers
+    });
   }
 
 }

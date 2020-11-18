@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
       (data) => {
         this.Token.setToken(data.access_token, data.user);
         this.Auth.changeAuthStatus(true);
-        this.swal.alerta('Bienvenido', 'success', 50000);
+        this.swal.alerta('Bienvenido', 'success', 5000);
         this.router.navigate(['home']);
       }, (error) => {
         if (error.error.errors) {
